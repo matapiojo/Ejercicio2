@@ -8,29 +8,21 @@ using Platformer.Core;
 
 namespace Platformer.Mechanics
 {
-    /// <summary>
-    /// This is the main class used to implement control of the player.
-    /// It is a superset of the AnimationController class, but is inlined to allow for any kind of customisation.
-    /// </summary>
     public class PlayerController : KinematicObject
     {
         public AudioClip jumpAudio;
         public AudioClip respawnAudio;
         public AudioClip ouchAudio;
 
-        /// <summary>
-        /// Max horizontal speed of the player.
-        /// </summary>
         public float maxSpeed = 7;
-        /// <summary>
-        /// Initial jump velocity at the start of a jump.
-        /// </summary>
-        public float jumpTakeOffSpeed = 7;
+        public float baseJumpSpeed = 7; // Velocidad base de salto
+        public float maxJumpMultiplier = 2.5f; // Multiplicador máximo para la altura del salto
 
         public JumpState jumpState = JumpState.Grounded;
         private bool stopJump;
-        /*internal new*/ public Collider2D collider2d;
-        /*internal new*/ public AudioSource audioSource;
+
+        public Collider2D collider2d;
+        public AudioSource audioSource;
         public Health health;
         public bool controlEnabled = true;
 
@@ -56,8 +48,12 @@ namespace Platformer.Mechanics
             if (controlEnabled)
             {
                 move.x = Input.GetAxis("Horizontal");
-                if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
+
+                // Verificar si el salto fue presionado y el personaje está en el suelo
+                if (Input.GetButtonDown("Jump") && jumpState == JumpState.Grounded)
+                {
                     jumpState = JumpState.PrepareToJump;
+                }
                 else if (Input.GetButtonUp("Jump"))
                 {
                     stopJump = true;
@@ -68,9 +64,13 @@ namespace Platformer.Mechanics
             {
                 move.x = 0;
             }
+
+            // Llamar a ComputeVelocity en cada actualización
+            ComputeVelocity();
             UpdateJumpState();
             base.Update();
         }
+
 
         void UpdateJumpState()
         {
@@ -82,6 +82,7 @@ namespace Platformer.Mechanics
                     jump = true;
                     stopJump = false;
                     break;
+
                 case JumpState.Jumping:
                     if (!IsGrounded)
                     {
@@ -89,6 +90,7 @@ namespace Platformer.Mechanics
                         jumpState = JumpState.InFlight;
                     }
                     break;
+
                 case JumpState.InFlight:
                     if (IsGrounded)
                     {
@@ -96,6 +98,7 @@ namespace Platformer.Mechanics
                         jumpState = JumpState.Landed;
                     }
                     break;
+
                 case JumpState.Landed:
                     jumpState = JumpState.Grounded;
                     break;
@@ -104,11 +107,15 @@ namespace Platformer.Mechanics
 
         protected override void ComputeVelocity()
         {
-            if (jump && IsGrounded)
+            if (jump && jumpState == JumpState.Grounded)
             {
-                velocity.y = jumpTakeOffSpeed * model.jumpModifier;
-                jump = false;
+                // Incrementar altura del salto basado en la velocidad horizontal
+                float jumpMultiplier = Mathf.Clamp(Mathf.Abs(move.x) / maxSpeed, 0, maxJumpMultiplier);
+                velocity.y = baseJumpSpeed * (1 + jumpMultiplier); // Altura de salto escalada
+                jump = false; // Reseteamos el salto para que no siga saltando
+                jumpState = JumpState.Jumping; // Cambiamos el estado a "Jumping"
             }
+
             else if (stopJump)
             {
                 stopJump = false;
