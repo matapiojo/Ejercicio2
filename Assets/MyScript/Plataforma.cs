@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using Platformer.Mechanics;
 using UnityEngine;
 
 public class Plataforma : MonoBehaviour
 {
-    // Variables p�blicas para configurar la plataforma
+    // Variables públicas para configurar la plataforma
     public bool moveInX = true; // True para mover en X, False para mover en Y
     public float speed = 2f;   // Velocidad de movimiento
     public float frequency = 2f; // Frecuencia (amplitud del movimiento)
 
+    public PlayerController playerController;
+
     // Variables internas
-    private Vector3 startPosition; // Posici�n inicial
+    private Vector3 startPosition; // Posición inicial
     private bool isPlayerOnPlatform = false;
 
     private void Start()
@@ -32,37 +35,22 @@ public class Plataforma : MonoBehaviour
         transform.position = startPosition + offset;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        // Detectar si el jugador est� sobre la plataforma
-        if (collision.collider.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            isPlayerOnPlatform = true;
-            collision.collider.transform.SetParent(transform); // Hacer que el jugador se mueva con la plataforma
+            playerController.transform.SetParent(transform);
+            //playerController.AttachToPlatform(transform);
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnTriggerExit2D(Collider2D other)
     {
-        // Detectar si el jugador sali� de la plataforma
-        if (collision.collider.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            isPlayerOnPlatform = false;
-            collision.collider.transform.SetParent(null); // Liberar al jugador de la plataforma
-        }
-    }
+            playerController.transform.SetParent(null);
+            //playerController.DetachFromPlatform();
 
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        // Asegurar que el jugador no atraviese la plataforma desde arriba
-        if (collision.collider.CompareTag("Player"))
-        {
-            Rigidbody2D playerRb = collision.collider.GetComponent<Rigidbody2D>();
-            if (playerRb.linearVelocity.y < 0)
-            {
-                // Si el jugador est� cayendo, bloquear su ca�da
-                playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, 0);
-            }
         }
     }
 }
