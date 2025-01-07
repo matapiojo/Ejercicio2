@@ -17,7 +17,7 @@ namespace Platformer.Mechanics
 
         public float maxSpeed = 7;
         public float baseJumpSpeed = 7; // Velocidad base de salto
-        public float maxJumpMultiplier = 2.5f; // Multiplicador máximo para la altura del salto
+        public float maxJumpMultiplier = 4f; // Multiplicador máximo para la altura del salto
 
         public float currentHealth = 100f;
 

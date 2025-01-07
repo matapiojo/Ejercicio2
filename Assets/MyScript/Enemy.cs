@@ -43,6 +43,7 @@ namespace Platformer.Mechanics
         {
             // Moverse hacia el jugador
             agent.SetDestination(target.position);
+            
             /*
             Vector3 direction = (target.position - transform.position).normalized;
             transform.position += direction * moveSpeed * Time.deltaTime;

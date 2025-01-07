@@ -9,7 +9,7 @@ namespace Platformer.Mechanics
         public float riseTime = 0.1f; // Tiempo que tardan en subir (rápido)
         public float fallTime = 1f; // Tiempo que tardan en bajar (lento)
         public float waitTime = 1f; // Tiempo que permanecen arriba
-        public float damage = 10f; // Daño infligido al jugador
+        
 
         private Vector3 startPosition;
         private bool isRaising = true;
